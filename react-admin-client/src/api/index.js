@@ -18,10 +18,29 @@ export const reqAddUser = (user) => ajax(BASE + '/manage/user/add', user, 'POST'
 export const reqCategorys = (parentId) => ajax(BASE + '/manage/category/list', {parentId})
 
 // 添加分类
-export const reqAddCategory = (categoryName, parentId) => ajax(BASE + '/manage/category/add', {categoryName, parentId}, 'POST')
+export const reqAddCategory = (categoryName, parentId) => ajax(BASE + '/manage/category/add', {
+  categoryName,
+  parentId
+}, 'POST')
 
 // 更新分类
-export const reqUpdateCategory = ({categoryId, categoryName}) => ajax(BASE + '/manage/category/update', {categoryId, categoryName}, 'POST')
+export const reqUpdateCategory = ({categoryId, categoryName}) => ajax(BASE + '/manage/category/update', {
+  categoryId,
+  categoryName
+}, 'POST')
+
+//获取商品
+export const reqProducts = (pageNum, pageSize) => ajax(BASE + '/manage/product/list', {pageNum, pageSize})
+
+/*
+搜索商品分页列表 (根据商品名称/商品描述)
+searchType: 搜索的类型, productName/productDesc
+ */
+export const reqSearchProducts = ({pageNum, pageSize, searchName, searchType}) => ajax(BASE + '/manage/product/search', {
+  pageNum,
+  pageSize,
+  [searchType]: searchName,
+})
 
 //获取天气请求函数jsonp
 export const reqWeather = (city) => {
