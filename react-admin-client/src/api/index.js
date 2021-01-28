@@ -11,11 +11,14 @@ const BASE = ''
 //登录
 export const reqLogin = (username, password) => ajax(BASE + '/login', {username, password}, 'POST')
 
-//添加用户
-export const reqAddUser = (user) => ajax(BASE + '/manage/user/add', user, 'POST')
+// 添加用户
+// export const reqAddUser = (user) => ajax(BASE + '/manage/user/add', user, 'POST')
 
 // 获取一级/二级分类的列表
 export const reqCategorys = (parentId) => ajax(BASE + '/manage/category/list', {parentId})
+
+// 获取一个分类
+export const reqCategory = (categoryId) => ajax(BASE + '/manage/category/info', {categoryId})
 
 // 添加分类
 export const reqAddCategory = (categoryName, parentId) => ajax(BASE + '/manage/category/add', {
@@ -31,6 +34,9 @@ export const reqUpdateCategory = ({categoryId, categoryName}) => ajax(BASE + '/m
 
 //获取商品
 export const reqProducts = (pageNum, pageSize) => ajax(BASE + '/manage/product/list', {pageNum, pageSize})
+
+// 更新商品的状态(上架/下架)
+export const reqUpdateStatus = (productId, status) => ajax(BASE + '/manage/product/updateStatus', {productId, status}, 'POST')
 
 /*
 搜索商品分页列表 (根据商品名称/商品描述)

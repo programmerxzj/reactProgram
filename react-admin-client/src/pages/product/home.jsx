@@ -6,10 +6,11 @@ import {
   Input,
   Button,
   Icon,
-  Table
+  Table,
+  message
 } from 'antd'
 import LinkButton from "../../components/link-button/link-button";
-import {reqProducts, reqSearchProducts} from "../../api";
+import {reqProducts, reqSearchProducts, reqUpdateStatus} from "../../api";
 import {PAGE_SIZE} from "../../utils/constants";
 
 const Option = Select.Option
@@ -44,12 +45,19 @@ export default class ProductHome extends Component {
       {
         title: '状态',
         width: 100,
-        dataIndex: 'status',
-        render: (status) => {
+        // dataIndex: 'status',
+        render: (product) => {
+          const {status, _id} = product
+          const newStatus = status === 1 ? 2 : 1
           return (
             <span>
-              <Button type='primary'>下架</Button>
-              <span>在售</span>
+              <Button
+                type='primary'
+                onClick={() => this.updateStatus(_id, newStatus)}
+              >
+                {status === 1 ? '下架' : '上架'}
+              </Button>
+              <span>{status === 1 ? '在售' : '已下架'}</span>
             </span>
           )
         }
@@ -60,7 +68,7 @@ export default class ProductHome extends Component {
         render: (product) => {
           return (
             <span>
-              <LinkButton>详情</LinkButton>
+              <LinkButton onClick={() => this.props.history.push('/product/detail', product)}>详情</LinkButton>
               <LinkButton>修改</LinkButton>
             </span>
           )
@@ -73,6 +81,8 @@ export default class ProductHome extends Component {
    * 获取指定页码的列表数据
    */
   getProducts = async (pageNum) => {
+    this.pageNum = pageNum  //保存页面让其他方法可以使用
+
     //发请求  中
     this.setState({
       loading: true
@@ -97,6 +107,15 @@ export default class ProductHome extends Component {
         total,
         products: list
       })
+    }
+  }
+
+  //更新商品状态
+  updateStatus = async (productId, status) => {
+    const result = await reqUpdateStatus(productId, status)
+    if (result.status === 0) {
+      message.success('商品更新成功...')
+      this.getProducts(this.pageNum)
     }
   }
 
