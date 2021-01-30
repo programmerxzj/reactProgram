@@ -9,6 +9,7 @@ import {
   message
 } from 'antd'
 import LinkButton from "../../components/link-button/link-button";
+import RichTextEditor from './rich-text-editor'
 import {reqCategorys} from '../../api'
 import PicturesWall from './pictures-wall'
 
@@ -21,6 +22,14 @@ Product的默认子路由组件
 class ProductAddUpdate extends Component {
   state = {
     options: [], //初始一级为空
+  }
+
+  constructor(props) {
+    super(props)
+
+    // 创建用来保存ref标识的标签对象的容器
+    this.pw = React.createRef()
+    this.editor = React.createRef()
   }
 
   loadData = async selectedOptions => {
@@ -116,8 +125,13 @@ class ProductAddUpdate extends Component {
     //  收集数据进行表单验证
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        console.log('submit()', values);
+
+        const imgs = this.pw.current.getImgs()
+
+        const detail = this.editor.current.getDetail()
+        console.log('imgs', imgs, detail);
         alert('发送ajax请求')
-        console.log(values);
       }
     })
   }
@@ -137,7 +151,7 @@ class ProductAddUpdate extends Component {
 
   render() {
     const {isUpdate, product} = this
-    const {categoryId, pCategoryId} = product
+    const {categoryId, pCategoryId, imgs, detail} = product
 
     const categoryIds = []
 
@@ -221,10 +235,10 @@ class ProductAddUpdate extends Component {
 
           </Item>
           <Item label='商品图片'>
-            <PicturesWall/>
+            <PicturesWall ref={this.pw} imgs={imgs}/>
           </Item>
-          <Item label='商品详情'>
-            <div>商品详情</div>
+          <Item label='商品详情' labelCol={{span: 2}} wrapperCol={{span: 20}}>
+            <RichTextEditor ref={this.editor} detail={detail}/>
           </Item>
           <Item>
             <Button type='primary' onClick={this.submit}>提交</Button>
@@ -236,3 +250,16 @@ class ProductAddUpdate extends Component {
 }
 
 export default Form.create()(ProductAddUpdate)
+
+
+/*
+1. 子组件调用父组件的方法: 将父组件的方法以函数属性的形式传递给子组件, 子组件就可以调用
+2. 父组件调用子组件的方法: 在父组件中通过ref得到子组件标签对象(也就是组件对象), 调用其方法
+ */
+
+/*
+使用ref
+1. 创建ref容器: thi.pw = React.createRef()
+2. 将ref容器交给需要获取的标签元素: <PictureWall ref={this.pw} />
+3. 通过ref容器读取标签元素: this.pw.current
+ */

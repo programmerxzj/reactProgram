@@ -36,7 +36,10 @@ export const reqUpdateCategory = ({categoryId, categoryName}) => ajax(BASE + '/m
 export const reqProducts = (pageNum, pageSize) => ajax(BASE + '/manage/product/list', {pageNum, pageSize})
 
 // 更新商品的状态(上架/下架)
-export const reqUpdateStatus = (productId, status) => ajax(BASE + '/manage/product/updateStatus', {productId, status}, 'POST')
+export const reqUpdateStatus = (productId, status) => ajax(BASE + '/manage/product/updateStatus', {
+  productId,
+  status
+}, 'POST')
 
 /*
 搜索商品分页列表 (根据商品名称/商品描述)
@@ -47,6 +50,14 @@ export const reqSearchProducts = ({pageNum, pageSize, searchName, searchType}) =
   pageSize,
   [searchType]: searchName,
 })
+
+/**
+ * 删除指定名称的图片
+ * @param city
+ * @returns {Promise<any>}
+ */
+export const reqDeleteImg = (name) => ajax(BASE + '/manage/img/delete', {name}, 'POST')
+
 
 //获取天气请求函数jsonp
 export const reqWeather = (city) => {
