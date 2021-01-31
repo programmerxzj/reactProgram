@@ -187,7 +187,7 @@ export default class ProductHome extends Component {
             total,
             onChange: this.getProducts
           }}
-        />;
+        />
       </Card>
     )
   }

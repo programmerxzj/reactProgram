@@ -58,6 +58,11 @@ export const reqSearchProducts = ({pageNum, pageSize, searchName, searchType}) =
  */
 export const reqDeleteImg = (name) => ajax(BASE + '/manage/img/delete', {name}, 'POST')
 
+// 添加/修改商品
+export const reqAddOrUpdateProduct = (product) => ajax(BASE + '/manage/product/' + (product._id ? 'update' : 'add'), product, 'POST')
+
+//// 获取所有角色的列表
+export const reqRoles = () => ajax(BASE + '/manage/role/list')
 
 //获取天气请求函数jsonp
 export const reqWeather = (city) => {
