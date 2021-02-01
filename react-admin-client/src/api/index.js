@@ -64,6 +64,12 @@ export const reqAddOrUpdateProduct = (product) => ajax(BASE + '/manage/product/'
 //// 获取所有角色的列表
 export const reqRoles = () => ajax(BASE + '/manage/role/list')
 
+// 添加角色的列表
+export const reqAddRole = (roleName) => ajax(BASE + '/manage/role/add',{roleName},"POST")
+
+// 更新角色权限的列表
+export const reqUpdateRole = (role) => ajax(BASE + '/manage/role/update', role, 'POST')
+
 //获取天气请求函数jsonp
 export const reqWeather = (city) => {
 

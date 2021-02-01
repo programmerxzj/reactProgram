@@ -2,15 +2,29 @@ import React, {Component} from 'react'
 import {
   Card,
   Button,
-  Table
+  Table,
+  Modal,
+  message
 } from 'antd'
 import {PAGE_SIZE} from '../../utils/constants'
-import {reqRoles} from '../../api'
+import {reqRoles, reqAddRole, reqUpdateRole} from '../../api'
+import AddForm from "./add-form";
+import AuthForm from './auth-form'
+import {formateDate} from '../../utils/dataUtils'
+import memoryUtil from "../../utils/memoryUtil";
 
 export default class Role extends Component {
   state = {
     roles: [],  //所有角色列表
     role: {},  //选中的role
+    isShowAdd: false,//是否显示添加界面
+    isShowAuth: false,//是否显示更新界面
+  }
+
+  constructor(props) {
+    super(props)
+
+    this.auth = React.createRef()
   }
 
   /**
@@ -24,11 +38,13 @@ export default class Role extends Component {
       },
       {
         title: '创建时间',
-        dataIndex: 'create_time'
+        dataIndex: 'create_time',
+        render: formateDate
       },
       {
         title: '授权时间',
-        dataIndex: 'auth_time'
+        dataIndex: 'auth_time',
+        render: (auth_time) => formateDate(auth_time)
       },
       {
         title: '授权人',
@@ -43,7 +59,7 @@ export default class Role extends Component {
     return {
       onClick: event => {
         // alert('点击行')
-        console.log(role);
+        // console.log(role);
         this.setState({
           role
         })
@@ -64,6 +80,66 @@ export default class Role extends Component {
     }
   }
 
+  /**
+   * 添加角色
+   */
+  addRole = () => {
+    //表单验证
+    this.form.validateFields(async (err, values) => {
+      if (!err) {
+        //隐藏确认框
+        this.setState({
+          isShowAdd: false
+        })
+
+        //  收集数据
+        const {roleName} = values
+        this.form.resetFields()
+        //  添加角色
+        const result = await reqAddRole(roleName)
+        //  更新列表
+        if (result.status === 0) {
+          message.success('角色添加成功')
+          const role = result.data
+
+          //  更新role状态：基于原本数据
+          this.setState(state => ({
+            roles: [...state.roles, role]
+          }))
+
+        } else {
+          message.error('角色添加失败')
+        }
+      }
+    })
+  }
+
+  /**
+   * 更新角色
+   */
+  updateRole = async () => {
+    // 隐藏确认框
+    this.setState({
+      isShowAuth: false
+    })
+    const role = this.state.role
+    //  得到menus
+    const menus = this.auth.current.getMenus()
+    role.menus = menus
+    role.auth_time = Date.now()
+    role.auth_name = memoryUtil.user.username
+
+    //  请求更新
+    const result = await reqUpdateRole(role)
+    if (result.status === 0) {
+      message.success('角色权限更新成功')
+      this.setState({
+        roles: [...this.state.roles]
+      })
+    } else {
+      message.error('添加角色失败')
+    }
+  }
 
   componentWillMount() {
     this.initColumn()
@@ -74,12 +150,24 @@ export default class Role extends Component {
   }
 
   render() {
-    const {roles, role} = this.state
+    const {roles, role, isShowAdd, isShowAuth} = this.state
 
     const title = (
       <span>
-        <Button type='primary' style={{marginRight: '10px'}}>创建角色</Button>
-        <Button type='primary' disabled={!role._id}>设置角色权限</Button>
+        <Button
+          type='primary'
+          style={{marginRight: '10px'}}
+          onClick={() => this.setState({isShowAdd: true})}
+        >
+          创建角色
+        </Button>
+        <Button
+          type='primary'
+          disabled={!role._id}
+          onClick={() => this.setState({isShowAuth: true})}
+        >
+          设置角色权限
+        </Button>
       </span>
     )
     return (
@@ -93,6 +181,34 @@ export default class Role extends Component {
           rowSelection={{type: 'radio', selectedRowKeys: [role._id]}}
           onRow={this.onRow}
         />
+
+        <Modal
+          title="添加角色"
+          visible={isShowAdd}
+          onOk={this.addRole}
+          onCancel={() => {
+            this.setState({isShowAdd: false})
+          }}
+        >
+
+          <AddForm
+            setForm={(form) => {
+              this.form = form
+            }}
+          />
+        </Modal>
+
+        <Modal
+          title="设置角色权限"
+          visible={isShowAuth}
+          onOk={this.updateRole}
+          onCancel={() => {
+            this.setState({isShowAuth: false})
+          }}
+        >
+
+          <AuthForm ref={this.auth} role={role} />
+        </Modal>
       </Card>
     )
   }
