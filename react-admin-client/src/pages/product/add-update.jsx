@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {PureComponent} from 'react'
 import {
   Card,
   Icon,
@@ -19,7 +19,7 @@ const {TextArea} = Input
 /*
 Product的默认子路由组件
  */
-class ProductAddUpdate extends Component {
+class ProductAddUpdate extends PureComponent {
   state = {
     options: [], //初始一级为空
   }
