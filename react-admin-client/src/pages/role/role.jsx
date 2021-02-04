@@ -12,6 +12,7 @@ import AddForm from "./add-form";
 import AuthForm from './auth-form'
 import {formateDate} from '../../utils/dataUtils'
 import memoryUtil from "../../utils/memoryUtil";
+import storageUtils from "../../utils/storageUtils";
 
 export default class Role extends Component {
   state = {
@@ -132,10 +133,17 @@ export default class Role extends Component {
     //  请求更新
     const result = await reqUpdateRole(role)
     if (result.status === 0) {
-      message.success('角色权限更新成功')
-      this.setState({
-        roles: [...this.state.roles]
-      })
+      if (role._id === memoryUtil.user.role_id) {
+        memoryUtil.user = {}
+        storageUtils.removeUser()
+        this.props.history.replace('/login')
+        message.success('强制退出重新登录')
+      } else {
+        message.success('角色权限更新成功')
+        this.setState({
+          roles: [...this.state.roles]
+        })
+      }
     } else {
       message.error('添加角色失败')
     }
@@ -207,7 +215,7 @@ export default class Role extends Component {
           }}
         >
 
-          <AuthForm ref={this.auth} role={role} />
+          <AuthForm ref={this.auth} role={role}/>
         </Modal>
       </Card>
     )

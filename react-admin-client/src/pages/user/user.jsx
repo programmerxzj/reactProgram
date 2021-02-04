@@ -3,13 +3,15 @@ import {
   Card,
   Button,
   Table,
-  Modal
+  Modal,
+  message
 } from 'antd'
 
 import {PAGE_SIZE} from "../../utils/constants";
 import {formateDate} from "../../utils/dataUtils";
 import LinkButton from "../../components/link-button/link-button";
-import {reqUsers} from "../../api";
+import {reqUsers, reqDeleteUser, reqAddOrUpdateUser} from "../../api";
+import UserForm from './user-form'
 
 export default class User extends Component {
   state = {
@@ -46,8 +48,8 @@ export default class User extends Component {
         title: '操作',
         render: (user) => (
           <span>
-            <LinkButton>修改</LinkButton>
-            <LinkButton>删除</LinkButton>
+            <LinkButton onClick={() => this.showUpdate(user)}>修改</LinkButton>
+            <LinkButton onClick={() => this.deleteUser(user)}>删除</LinkButton>
           </span>
         )
       },
@@ -69,8 +71,25 @@ export default class User extends Component {
   /**
    * 添加或更新界面
    */
-  addOrUpdateUser = () => {
+  addOrUpdateUser = async () => {
+    //隐藏状态框
+    this.setState({isShow: false})
 
+    //  收集数据
+    const user = this.form.getFieldsValue()
+    this.form.resetFields()
+    // console.log(user);
+    // 如果是更新, 需要给user指定_id属性
+    if (this.user) {
+      user._id = this.user._id
+    }
+    //  发送请求
+    const result = await reqAddOrUpdateUser(user)
+    //  添加用户，更新列表
+    if (result.status === 0) {
+      message.success(`${this.user ? '修改' : '添加'}用户成功`)
+      this.getUsers()
+    }
   }
 
   //获取用户角色
@@ -85,6 +104,43 @@ export default class User extends Component {
     }
   }
 
+  /**
+   * 修改角色
+   */
+  showUpdate = (user) => {
+    this.user = user//保存user
+    this.setState({
+      isShow: true
+    })
+  }
+
+  /**
+   * 删除角色
+   */
+  deleteUser = (user) => {
+    Modal.confirm({
+      title: `确认删除${user.username}吗?`,
+      onOk: async () => {
+        const result = await reqDeleteUser(user._id)
+        if (result.status === 0) {
+          message.success('删除用户成功!')
+          this.getUsers()
+        }
+      }
+    })
+  }
+
+  /**
+   * 创建角色
+   */
+  showAdd = () => {
+    this.user = null
+    this.setState({
+      isShow: true
+    })
+
+  }
+
   componentWillMount() {
     this.initColumns()
   }
@@ -94,9 +150,10 @@ export default class User extends Component {
   }
 
   render() {
-    const {users, isShow} = this.state
+    const {users, isShow, roles} = this.state
 
-    const title = <Button type='primary'>创建用户</Button>
+    const user = this.user || {}
+    const title = <Button type='primary' onClick={this.showAdd}>创建用户</Button>
     return (
       <Card title={title}>
         <Table
@@ -108,12 +165,19 @@ export default class User extends Component {
         />
 
         <Modal
-          title="添加分类"
+          title={user._id ? '修改用户' : '添加用户'}
           visible={isShow}
           onOk={this.addOrUpdateUser}
-          onCancel={() => this.setState({isShow: false})}
+          onCancel={() => {
+            this.form.resetFields()
+            this.setState({isShow: false})
+          }}
         >
-          <div>添加/更新界面</div>
+          <UserForm
+            setForm={form => this.form = form}
+            roles={roles}
+            user={user}
+          />
         </Modal>
       </Card>
     )

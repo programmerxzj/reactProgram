@@ -89,7 +89,7 @@ class Login extends Component {
       <div className='login'>
         <header className='login-header'>
           <img src={logo} alt="logo"/>
-          <h1>React 项目: 后台管理系统</h1>
+          <h1>React 项目: 杂货管理系统</h1>
         </header>
         <section className='login-content'>
           <h3>用户登陆</h3>
@@ -104,7 +104,6 @@ class Login extends Component {
                     {max: 12, message: '用户名最多12位'},
                     {pattern: /^[a-zA-Z0-9_]+$/, message: '用户名必须是英文、数字或下划线组成'},
                   ],
-                  initialValue: 'admin', // 初始值
                 })(
                   <Input
                     prefix={<Icon type="user" style={{color: 'rgba(0,0,0,.25)'}}/>}
