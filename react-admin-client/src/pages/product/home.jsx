@@ -69,7 +69,7 @@ export default class ProductHome extends Component {
           return (
             <span>
               <LinkButton onClick={() => this.props.history.push('/product/detail', product)}>详情</LinkButton>
-              <LinkButton onClick={()=>this.props.history.push('/product/addupdate',product)}>修改</LinkButton>
+              <LinkButton onClick={() => this.props.history.push('/product/addupdate', product)}>修改</LinkButton>
             </span>
           )
         }
@@ -182,6 +182,7 @@ export default class ProductHome extends Component {
           dataSource={products}
           columns={this.columns}
           pagination={{
+            current: this.pageNum,
             defaultPageSize: PAGE_SIZE,
             showQuickJumper: true,
             total,
