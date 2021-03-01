@@ -1,16 +1,16 @@
 import React, {Component} from 'react'
 import {withRouter} from 'react-router-dom'
 import {Modal} from 'antd'
+import {connect} from 'react-redux'
 
 import LinkButton from '../link-button/link-button'
 import {formateDate} from '../../utils/dataUtils'
 import {reqWeather} from '../../api'
 import menuList from '../../config/menuConfig'
-import memoryUtil from '../../utils/memoryUtil'
-import storageUtils from '../../utils/storageUtils'
 
 
 import './header.less'
+import {logout} from "../../redux/actions";
 
 class Header extends Component {
   state = {
@@ -55,17 +55,13 @@ class Header extends Component {
     return title
   }
 
-  logout = () => {
+  logout1 = () => {
     Modal.confirm({
       content: '确定退出吗？',
       onOk: () => {
         console.log('ok');
         //  删除user数据
-        storageUtils.removeUser()
-        memoryUtil.user = {}
-
-        //  跳转到登陆界面
-        this.props.history.replace('/login')
+        this.props.logout()
       }
     })
   }
@@ -85,14 +81,15 @@ class Header extends Component {
   render() {
     const {currentTime, city, weather} = this.state
 
-    const username = memoryUtil.user.username
-
-    const title = this.getTitle()
+    const username = this.props.user.username
+    //显示当前title
+    // const title = this.getTitle()
+    const title = this.props.headTitle
     return (
       <div className='header'>
         <div className='header-top'>
           <span>欢迎，{username}</span>
-          <LinkButton onClick={this.logout}>退出</LinkButton>
+          <LinkButton onClick={this.logout1}>退出</LinkButton>
         </div>
         <div className='header-bottom'>
           <div className='header-bottom-left'>{title}</div>
@@ -107,4 +104,7 @@ class Header extends Component {
   }
 }
 
-export default withRouter(Header)
+export default connect(
+  state => ({headTitle: state.headTitle, user: state.user}),
+  {logout}
+)(withRouter(Header))

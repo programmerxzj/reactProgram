@@ -1,11 +1,13 @@
 import React, {Component} from 'react'
 import {Link, withRouter} from 'react-router-dom'
 import {Menu, Icon} from 'antd'
+import {connect} from 'react-redux'
 
 import './left-nav.less'
 import logo from '../../assets/images/logo.png'
 import menuList from '../../config/menuConfig'
 import memoryUtil from '../../utils/memoryUtil'
+import {setHeadTitle} from '../../redux/actions'
 
 const SubMenu = Menu.SubMenu;
 
@@ -18,9 +20,13 @@ class LeftNav extends Component {
       // 如果当前用户有item对应的权限, 才需要显示对应菜单项
       if (this.hasAuth(item)) {
         if (!item.children) {
+          if (item.key === path || path.indexOf(item.key) === 0) {
+            //更新headTitle状态
+            this.props.setHeadTitle(item.title)
+          }
           return (
             <Menu.Item key={item.key}>
-              <Link to={item.key}>
+              <Link to={item.key} onClick={() => this.props.setHeadTitle(item.title)}>
                 <Icon type={item.icon}></Icon>
                 <span>{item.title}</span>
               </Link>
@@ -57,8 +63,8 @@ class LeftNav extends Component {
   hasAuth = (item) => {
     const {key, isPublic} = item
 
-    const menus = memoryUtil.user.role.menus
-    const username = memoryUtil.user.username
+    const menus = this.props.user.role.menus
+    const username = this.props.user.username
 
     // 1. 如果当前用户是admin
     // 2. 如果当前item是公开的
@@ -112,4 +118,7 @@ class LeftNav extends Component {
 * withRouter
 * 包装非路由组件获取三个值   history location match
 * */
-export default withRouter(LeftNav)
+export default connect(
+  state => ({user:state.user}),
+  {setHeadTitle}
+)(withRouter(LeftNav))

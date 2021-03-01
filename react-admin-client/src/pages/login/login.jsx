@@ -7,13 +7,11 @@ import {
   Button,
   message
 } from 'antd'
-
+import {connect} from 'react-redux'
 
 import logo from '../../assets/images/logo.png'
 import './login.less'
-import {reqLogin} from "../../api";
-import memoryUtil from "../../utils/memoryUtil";
-import storageUtils from "../../utils/storageUtils";
+import {login} from "../../redux/actions";
 
 const Item = Form.Item
 
@@ -29,20 +27,8 @@ class Login extends Component {
         // console.log('发送ajax请求',values);
         //请求登陆
         const {username, password} = values
-        const result = await reqLogin(username, password)//status  状态  0  1 代表不同登录状态
-        if (result.status === 0) {
-          message.success('登陆成功')
 
-          //保存user
-          const user = result.data
-          memoryUtil.user = user  //保存到内存中
-          storageUtils.saveUser(user) //保存到local中
-          // console.log('1');
-          this.props.history.replace('/')
-          // console.log('2');
-        } else {
-          message.error(result.msg)
-        }
+        this.props.login(username,password)
 
       } else {
         console.log('校验失败');
@@ -78,10 +64,12 @@ class Login extends Component {
 
   render() {
     //验证是否已经登录
-    const user =memoryUtil.user
-    if(user&&user._id){
-      return <Redirect to='/'/>
+    const user = this.props.user
+    if (user && user._id) {
+      return <Redirect to='/home'/>
     }
+
+    const errorMsg=this.props.user.errorMsg
 
     const form = this.props.form
     const {getFieldDecorator} = form
@@ -92,6 +80,7 @@ class Login extends Component {
           <h1>React 项目: 杂货管理系统</h1>
         </header>
         <section className='login-content'>
+          <div className={user.errorMsg ? 'error-msg show' : 'error-msg'}>{user.errorMsg}</div>
           <h3>用户登陆</h3>
           <Form onSubmit={this.handleSubmit} className="login-form">
             <Item>
@@ -104,6 +93,7 @@ class Login extends Component {
                     {max: 12, message: '用户名最多12位'},
                     {pattern: /^[a-zA-Z0-9_]+$/, message: '用户名必须是英文、数字或下划线组成'},
                   ],
+                  initialValue:'admin'
                 })(
                   <Input
                     prefix={<Icon type="user" style={{color: 'rgba(0,0,0,.25)'}}/>}
@@ -119,7 +109,8 @@ class Login extends Component {
                     {
                       validator: this.validatePwd
                     }
-                  ]
+                  ],
+                  initialValue: 'admin'
                 })(
                   <Input
                     prefix={<Icon type="lock" style={{color: 'rgba(0,0,0,.25)'}}/>}
@@ -142,4 +133,7 @@ class Login extends Component {
 }
 
 const WrapLogin = Form.create()(Login)
-export default WrapLogin
+export default connect(
+  state => ({user: state.user}),
+  {login}
+)(WrapLogin)
