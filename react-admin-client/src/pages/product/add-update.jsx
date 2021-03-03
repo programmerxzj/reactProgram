@@ -12,6 +12,7 @@ import LinkButton from "../../components/link-button/link-button";
 import RichTextEditor from './rich-text-editor'
 import {reqCategorys, reqAddOrUpdateProduct} from '../../api'
 import PicturesWall from './pictures-wall'
+import memoryUtil from "../../utils/memoryUtil";
 
 const {Item} = Form
 const {TextArea} = Input
@@ -166,11 +167,18 @@ class ProductAddUpdate extends PureComponent {
 
   componentWillMount() {
     //  取出state
-    const product = this.props.location.state
+    const product = memoryUtil.product
     //  保存判断是否更新
-    this.isUpdate = !!product
+    this.isUpdate = !!product._id
     //保存商品  如果没有 就是{}
     this.product = product || {}
+  }
+
+  /**
+   * 卸载之前清除数据
+   */
+  componentWillUnmount() {
+    memoryUtil.product={}
   }
 
   render() {
